@@ -20,6 +20,7 @@ def parse(proto):
 
     low_res = tf.cast(low_res,tf.float32)/255.0
     high_res = tf.cast(high_res,tf.float32)/255.0
+    
 
     return low_res,high_res
 
