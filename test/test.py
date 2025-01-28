@@ -1,7 +1,19 @@
 import tensorflow as tf
+from keras import backend
 import cv2
 import os
-model= tf.keras.models.load_model('./saved_model')
+
+def perceptual_loss(y, y_hat):
+    true_features = model(y)
+    pred_features= model(y_hat)
+
+    return backend.mean(backend.square(true_features - pred_features))
+
+def psnr(y, y_hat):
+    return tf.image.psnr(y, y_hat, max_val=1.0)
+
+model= tf.keras.models.load_model('./saved_model',
+                                    custom_objects={'perceptual_loss':perceptual_loss , 'psnr':psnr})
 
 
 input_img = r'D:\coding\Upscaler\test\inp\0.png'
