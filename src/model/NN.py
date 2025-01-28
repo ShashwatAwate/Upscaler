@@ -3,13 +3,26 @@ from data_ingestion import parse
 from model import create_nn
 import matplotlib.pyplot as plt
 
-def plot_loss(history):
-    plt.plot(history.history['loss'],color='blue')
-    plt.plot(history.history['val_loss'],color = 'orange')
+def plot_data(history):
+    plt.figure(figsize=(15,6))
+
+    plt.subplot(1,2,1)
+    plt.plot(history.history['loss'],color='blue',label='train_loss')
+    plt.plot(history.history['val_loss'],color = 'orange', label = 'val_loss')
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.grid(True)
     plt.legend()
+    
+    plt.subplot(1,2,2)
+    plt.plot(history.history['psnr'],color='green',label='psnr')
+    plt.plot(history.history['val_psnr'],color='red',label='val_psnr')
+    plt.xlabel('epoch')
+    plt.ylabel('psnr')
+    plt.grid(True)
+    plt.legend()
+
+    plt.tight_layout()
     plt.show()
 
 
@@ -36,5 +49,5 @@ history = model.fit(
     validation_steps=10
 )
 model.save(r'D:\coding\Upscaler\\test\saved_model')
-plot_loss(history)
+plot_data(history)
 
