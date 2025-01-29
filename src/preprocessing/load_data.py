@@ -14,8 +14,12 @@ def create_feature(value):
 def scale(img,scale):
     h,w,ch = img.shape
     nh,nw = int(h*scale),int(w*scale)
-    img = cv2.resize(img,(nh,nw))
-    return cv2.resize(img,(h,w))
+    if scale <1:
+        img = cv2.resize(img,(nw,nh),interpolation=cv2.INTER_AREA)
+    else:
+        img = cv2.resize(img,(nw,nh),interpolation=cv2.INTER_CUBIC)
+    
+    return cv2.resize(img,(w,h),interpolation=cv2.INTER_CUBIC)
 
 def rotate(img,angle):
     h,w,ch = img.shape
@@ -24,22 +28,22 @@ def rotate(img,angle):
 
 def augmentation(low_img,high_img):
     if np.random.rand()<0.5:
-        angle =np.random.uniform(-15,15) 
+        angle =np.random.uniform(-10,10) 
         low_img = rotate(low_img,angle)
         high_img = rotate(high_img,angle)
 
     if np.random.rand()<0.5:
-        scale_factor = np.random.uniform(0.6,1.1)
+        scale_factor = np.random.uniform(0.8,1.2)
         low_img = scale(low_img,scale_factor)
         high_img = scale(high_img,scale_factor)
 
-    if np.random.rand()<0.5:
+    if np.random.rand()<0.3:
         kernel = np.random.choice([3,5])
         low_img = cv2.GaussianBlur(low_img,(kernel,kernel),sigmaX=1.0)
         high_img = cv2.GaussianBlur(high_img,(kernel,kernel),sigmaX=1.0)
 
-    if np.random.rand()<0.5:
-        noise = np.random.normal(0,0.05,low_img.shape).astype(np.float32)
+    if np.random.rand()<0.3:
+        noise = np.random.normal(0,0.02,low_img.shape).astype(np.float32)
         low_img = np.clip(low_img+noise,0,1)
         high_img = np.clip(high_img+noise,0,1)
 
@@ -68,8 +72,11 @@ def write_TFRecord(low_path,high_path,name):
                 low_res_img = low_res_img/255.0
                 high_res_img = high_res_img/255.0
 
-                low_res_img = (low_res_img*255).astype(np.float32)
-                high_res_img = (high_res_img*255).astype(np.float32)
+                # low_res_img = (low_res_img*255).astype(np.float32)
+                # high_res_img = (high_res_img*255).astype(np.float32)
+
+                low_res_img  = low_res_img.astype(np.float32)
+                high_res_img  = high_res_img.astype(np.float32)
 
                 low_res_original = low_res_img
                 high_res_original = high_res_img

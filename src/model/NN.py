@@ -38,15 +38,16 @@ parsed_val_dataset = val_raw_dataset.map(parse)
 # print('train examples',sum(1 for _ in parsed_dataset))
 # print('test examples',sum(1 for _ in parsed_val_dataset))
 
-batch_size = 10
+batch_size = 70
 
 model = create_nn()
 history = model.fit(
     parsed_dataset,
     validation_data=parsed_val_dataset,
-    epochs=10,
-    steps_per_epoch=50,
-    validation_steps=10
+    batch_size=batch_size,
+    epochs=100,
+    steps_per_epoch=20,
+    validation_steps=20
 )
 model.save(r'D:\coding\Upscaler\\test\saved_model')
 plot_data(history)
