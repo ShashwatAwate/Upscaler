@@ -29,9 +29,9 @@ def psnr(y,y_hat):
 
 
 def res_layer(x, skip, filter):
-    if backend.int_shape(skip)[-1] != filter:
+    if backend.shape(skip)[-1] != filter:
         skip = Conv2D(filter, (1,1), padding='same', activation=None)(skip)
-    if backend.int_shape(x)[1] != backend.int_shape(skip)[1]:  
+    if backend.shape(x)[1] != backend.shape(skip)[1]:  
         skip = Conv2D(filter, (1,1), padding='same', activation=None)(skip)
 
     x = Conv2D(filter, (3,3), padding='same', activation='relu')(x)
