@@ -58,7 +58,7 @@ def write_TFRecord(low_path,high_path,name):
             low_res_path = os.path.join(low_path,filename)
             high_res_path = os.path.join(high_path,filename)
 
-            if os.path.exists(high_res_path):
+            if os.path.exists(high_res_path) and os.path.exists(low_res_path):
                 low_res_img = cv2.imread(low_res_path)
                 high_res_img = cv2.imread(high_res_path)
 
@@ -69,8 +69,8 @@ def write_TFRecord(low_path,high_path,name):
                 low_res_img = cv2.resize(low_res_img,target_size)
                 high_res_img = cv2.resize(high_res_img,target_size)
 
-                low_res_img = low_res_img/255.0
-                high_res_img = high_res_img/255.0
+                # low_res_img = low_res_img/255.0
+                # high_res_img = high_res_img/255.0
 
                 # low_res_img = (low_res_img*255).astype(np.float32)
                 # high_res_img = (high_res_img*255).astype(np.float32)
@@ -95,12 +95,12 @@ def write_TFRecord(low_path,high_path,name):
                     aug_low,aug_high = augmentation(low_res_original,high_res_original)
                     aug_low_bytes = aug_low.tobytes()
                     aug_high_bytes = aug_high.tobytes()
-                    feature = {
+                    f = {
                         'low_res':create_feature(aug_low_bytes),
                         'high_res':create_feature(aug_high_bytes),
                     }
-                    example = tf.train.Example(features=tf.train.Features(feature=feature))
-                    writer.write(example.SerializeToString())
+                    ex = tf.train.Example(features=tf.train.Features(feature=f))
+                    writer.write(ex.SerializeToString())
 
 train_high = r'D:\coding\Upscaler\data\\train\high_res'
 train_low = r'D:\coding\Upscaler\data\\train\low_res'
