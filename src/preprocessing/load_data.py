@@ -43,9 +43,10 @@ def augmentation(low_img,high_img):
         high_img = cv2.GaussianBlur(high_img,(kernel,kernel),sigmaX=1.0)
 
     if np.random.rand()<0.3:
-        noise = np.random.normal(0,0.02,low_img.shape).astype(np.float32)
-        low_img = np.clip(low_img+noise,0,1)
-        high_img = np.clip(high_img+noise,0,1)
+        low_noise = np.random.normal(0,0.02,low_img.shape).astype(np.float32)
+        high_noise = np.random.normal(0,0.02,high_img.shape).astype(np.float32)
+        low_img = np.clip(low_img+low_noise,0,1)
+        high_img = np.clip(high_img+high_noise,0,1)
 
     return low_img,high_img
 
@@ -65,9 +66,10 @@ def write_TFRecord(low_path,high_path,name):
                 low_res_img = cv2.cvtColor(low_res_img,cv2.COLOR_BGR2RGB)
                 high_res_img = cv2.cvtColor(high_res_img,cv2.COLOR_BGR2RGB)
 
-                target_size = (256,256)
-                low_res_img = cv2.resize(low_res_img,target_size)
-                high_res_img = cv2.resize(high_res_img,target_size)
+                low_res_target_size = (128,128)
+                high_res_target_size = (256,256)
+                low_res_img = cv2.resize(low_res_img,low_res_target_size)
+                high_res_img = cv2.resize(high_res_img,high_res_target_size)
 
                 # low_res_img = low_res_img/255.0
                 # high_res_img = high_res_img/255.0

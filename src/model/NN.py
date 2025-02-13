@@ -13,6 +13,8 @@ if gpus:
     except RuntimeError as e:
         print(e)
 
+
+
 def plot_data(history):
     plt.figure(figsize=(15,6))
 
@@ -42,15 +44,15 @@ val_path = r'D:\coding\Upscaler\data\data.tfrecord'
 raw_dataset = tf.data.TFRecordDataset(data_path)
 val_raw_dataset = tf.data.TFRecordDataset(val_path)
 
-batch_size = 8
+batch_size = 50
 
 raw_dataset = tf.data.TFRecordDataset(data_path)
 parsed_dataset = raw_dataset.map(parse)
-parsed_dataset = parsed_dataset.shuffle(1000).batch(16).repeat()
+
 
 val_raw_dataset = tf.data.TFRecordDataset(val_path)
 parsed_val_dataset = val_raw_dataset.map(parse)
-parsed_val_dataset = parsed_val_dataset.shuffle(1000).batch(16).repeat()
+
 # print('train examples',sum(1 for _ in parsed_dataset))
 # print('test examples',sum(1 for _ in parsed_val_dataset))
 save_path = r'D:\coding\Upscaler\test\saved_model'
@@ -64,7 +66,7 @@ history = model.fit(
     validation_data=parsed_val_dataset,
     batch_size=batch_size,
     epochs=100,
-    steps_per_epoch=925,
+    steps_per_epoch=60,
     validation_steps=50,
     callbacks=callbacks
 )
