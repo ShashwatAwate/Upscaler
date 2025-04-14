@@ -1,11 +1,17 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
 import tensorflow as tf
 from keras import backend,models
 import cv2
-import os
 import matplotlib.pyplot as plt
 import numpy as np
 from keras.applications import VGG19
 from keras.applications.vgg19 import preprocess_input
+from src.model.data_ingestion import parse
+
 
 vgg = VGG19(include_top=False,weights='imagenet',input_shape=(None,None,3))
 vgg.trainable=False
@@ -31,23 +37,34 @@ def psnr(y, y_hat):
 
 
 
-model= tf.keras.models.load_model('./saved_model',
+model= tf.keras.models.load_model(r'D:\coding\Upscaler\test\saved_model',
                                     custom_objects={'perceptual_loss':perceptual_loss , 'psnr':psnr,'combined_loss':combined_loss})
 
 
 input_img = r'D:\coding\Upscaler\test\inp\0.png'
+test_rec_path = r'D:\coding\Upscaler\data\data_test.tfrecord'
 output_dir = './outputs'
 os.makedirs(output_dir,exist_ok=True)
-output_image_path = os.path.join(output_dir, 'processed_image.jpg')
+output_image_path = os.path.join(output_dir, 'res_combined_fsresp_residual.jpg')
 
 
-img = cv2.imread(input_img)
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-img = cv2.resize(img, (256, 256))
-img = img.astype(np.float32) / 255.0
-img_batch = np.expand_dims(img, axis=0)
+def predict_img(input_img):
+    img = cv2.imread(input_img)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, (256, 256))
+    img = img.astype(np.float32) / 255.0
+    img_batch = np.expand_dims(img, axis=0)
+    pred = model.predict(img_batch)
+    return pred
 
-pred = model.predict(img_batch)
+
+def evaluate_model():
+    test_rec = tf.data.TFRecordDataset(test_rec_path)
+    parsed_rec = test_rec.map(parse)
+    result = model.evaluate(parsed_rec)
+    return dict(zip(model.metrics_names,result))
+    pass
+
 
 def compare_pred(input_img_path, model):
     # Load and preprocess image
@@ -66,7 +83,7 @@ def compare_pred(input_img_path, model):
     
 
     plt.figure(figsize=(15, 5))
-    
+
     plt.subplot(131)
     plt.imshow(img)
     plt.title('Input')
@@ -85,4 +102,6 @@ def compare_pred(input_img_path, model):
     plt.savefig(output_image_path)
     plt.close()
     
-compare_pred(input_img_path=input_img,model=model)
+if __name__ =='__main__':
+    print(evaluate_model())
+    # compare_pred(input_img_path=input_img,model=model)

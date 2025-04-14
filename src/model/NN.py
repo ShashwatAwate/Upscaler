@@ -2,8 +2,7 @@ import tensorflow as tf
 from data_ingestion import parse
 from model import create_nn
 import matplotlib.pyplot as plt
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras import mixed_precision
+from keras.callbacks import EarlyStopping, ModelCheckpoint,ReduceLROnPlateau
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -39,10 +38,7 @@ def plot_data(history):
 
 
 data_path = r'D:\coding\Upscaler\data\data.tfrecord'
-val_path = r'D:\coding\Upscaler\data\data.tfrecord'
-
-raw_dataset = tf.data.TFRecordDataset(data_path)
-val_raw_dataset = tf.data.TFRecordDataset(val_path)
+val_path = r'D:\coding\Upscaler\data\data_val.tfrecord'
 
 batch_size = 50
 
@@ -57,8 +53,15 @@ parsed_val_dataset = val_raw_dataset.map(parse)
 # print('test examples',sum(1 for _ in parsed_val_dataset))
 save_path = r'D:\coding\Upscaler\test\saved_model'
 callbacks = [
-    EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
-    ModelCheckpoint(save_path, monitor='val_loss', save_best_only=True)
+    EarlyStopping(monitor='val_loss', patience=30, restore_best_weights=True,verbose=0),
+    ModelCheckpoint(save_path, monitor='val_loss', save_best_only=True,verbose=0),
+    ReduceLROnPlateau(
+        monitor = 'val_loss',
+        factor = 0.3,
+        patience = 3,
+        verbose = 0,
+        min_lr = 1e-9
+    )
 ]
 model = create_nn()
 history = model.fit(

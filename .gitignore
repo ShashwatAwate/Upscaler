@@ -1,3 +1,5 @@
 venv
 data
 test
+__pycache__
+.gitignore

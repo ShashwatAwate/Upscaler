@@ -71,12 +71,6 @@ def write_TFRecord(low_path,high_path,name):
                 low_res_img = cv2.resize(low_res_img,low_res_target_size)
                 high_res_img = cv2.resize(high_res_img,high_res_target_size)
 
-                # low_res_img = low_res_img/255.0
-                # high_res_img = high_res_img/255.0
-
-                # low_res_img = (low_res_img*255).astype(np.float32)
-                # high_res_img = (high_res_img*255).astype(np.float32)
-
                 low_res_img  = low_res_img.astype(np.float32)
                 high_res_img  = high_res_img.astype(np.float32)
 
@@ -104,6 +98,17 @@ def write_TFRecord(low_path,high_path,name):
                     ex = tf.train.Example(features=tf.train.Features(feature=f))
                     writer.write(ex.SerializeToString())
 
+def write_test_TFRecord(val_rec,name):
+    val_rec = tf.data.TFRecordDataset(val_rec)
+    total_count = sum(1 for _ in val_rec)
+    test_count = int(0.2*total_count)
+    test_dataset = val_rec.take(test_count)
+    val_rec = val_rec.skip(int(total_count*0.8))
+    with tf.io.TFRecordWriter(name) as writer:
+        for record in test_dataset:
+            writer.write(record.numpy())
+    pass
+
 train_high = r'D:\coding\Upscaler\data\\train\high_res'
 train_low = r'D:\coding\Upscaler\data\\train\low_res'
 
@@ -113,14 +118,21 @@ val_low = r'D:\coding\Upscaler\data\\val\low_res'
 val_record_path = r'D:\coding\Upscaler\data\data_val.tfrecord'
 train_record_path = r'D:\coding\Upscaler\data\data.tfrecord'
 
-print("Writing Train record....")
-write_TFRecord(low_path=train_low,high_path=train_high,name=train_record_path)
-print("Train record created !!!!")
-print("Writing val record....")
-write_TFRecord(low_path=val_low,high_path=val_high,name=val_record_path)
-print("Val record created !!!!")
+test_record_path = r'D:\coding\Upscaler\data\data_test.tfrecord'
 
-print('tf records created!!!')
+
+if __name__ == '__main__':
+    print("Writing Train record....")
+    write_TFRecord(low_path=train_low,high_path=train_high,name=train_record_path)
+    print("Train record created !!!!")
+    print("Writing val record....")
+    write_TFRecord(low_path=val_low,high_path=val_high,name=val_record_path)
+    print("Val record created !!!!")
+
+    print("writing test record...")
+    write_test_TFRecord(val_record_path,test_record_path)
+
+    print('tf records created!!!')
 
 
 
